@@ -1,0 +1,12 @@
+-- CommuniConserve PostgreSQL schema (spec section 15)
+-- Django migrations are the source of truth; this file is a human-readable
+-- reference of the core tables and is regenerated from migrations.
+
+-- users, roles are implemented via accounts.User (custom AbstractUser + role field)
+-- Remaining core tables per spec:
+--   seller_applications, verified_sellers, communities, categories, products,
+--   product_images, tourism_destinations, bookings, orders,
+--   conservation_projects, project_galleries, notifications, reports, audit_logs
+--
+-- Run `python manage.py makemigrations && python manage.py migrate` to generate
+-- the real schema; this file will be updated via `pg_dump --schema-only`.

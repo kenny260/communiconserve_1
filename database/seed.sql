@@ -1,0 +1,4 @@
+-- Placeholder for exported seed data (spec section 19: demo data).
+-- Prefer `python manage.py seed_demo_data` (Django management command) to
+-- generate realistic demo data, then export with:
+--   pg_dump --data-only --inserts communiconserve > database/seed.sql

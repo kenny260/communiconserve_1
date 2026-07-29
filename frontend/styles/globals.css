@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2E7D32;
+  --color-secondary: #66BB6A;
+  --color-accent: #D4A017;
+}
+
+.input {
+  @apply w-full rounded-lg border border-black/10 px-3 py-2 text-sm focus:border-primary focus:outline-none;
+}
