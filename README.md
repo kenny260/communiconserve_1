@@ -3,7 +3,7 @@
 Conserve. Connect. Prosper.
 
 A platform for community-led conservation, local commerce, and eco-tourism in
-the Lubombo Corridor, Eswatini — connecting communities, verified producers,
+the Lubombo Corridor, Eswatini,  connecting communities, verified producers,
 tourists, NGOs, and conservation officers in one secure digital ecosystem.
 
 ## Stack
@@ -69,10 +69,10 @@ docker compose up --build
 
 ## Roles
 
-- **Public:** Visitor, Customer, Tourist — browse/search the marketplace and
+- **Public:** Visitor, Customer, Tourist - browse/search the marketplace and
   tourism listings, purchase, book, apply to become a seller, manage their
   own profile/orders/bookings.
-- **Administrator:** NGO Coordinator, Conservation Officer — manage users,
+- **Administrator:** NGO Coordinator, Conservation Officer, manage users,
   seller applications, the marketplace, tourism, conservation content,
   communities, notifications, reports, analytics, and audit logs via
   `/admin` (redirected there after login).
@@ -88,8 +88,8 @@ Fully implemented: all 12 backend apps (models, serializers, viewsets,
 permissions, JWT auth, audit logging), the `seed_demo_data` command
 (15 communities, 20 verified sellers, 65 products, 21 destinations, 30
 conservation projects, 45 bookings, 55 orders, 35 notifications, 160 audit
-logs), a pytest suite, and all 26 frontend routes — every public page,
-auth flow, and admin module — wired to the live API with real forms,
+logs), a pytest suite, and all 26 frontend routes for  every public page,
+auth flow, and admin module  wired to the live API with real forms,
 tables, and charts.
 
 Not built in this pass: payment gateway integration, email/SMS delivery
