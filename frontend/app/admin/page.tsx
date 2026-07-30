@@ -17,12 +17,12 @@ export default function AdminDashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-[#14231A]">Dashboard</h1>
-      <p className="text-sm text-[#7C9284]">Welcome back! Here's what's happening on CommuniConserve.</p>
+      <p className="text-sm text-[#7C9284]">Welcome back! Here is what is happening on CommuniConserve.</p>
 
       {isLoading && <p className="mt-6 text-sm text-[#7C9284]">Loading analytics…</p>}
       {isError && (
         <p className="mt-6 text-sm text-red-600">
-          Couldn't load analytics. Log in as an administrator and confirm the API is running.
+        Could not load analytics. Log in as an administrator and confirm the API is running.
         </p>
       )}
 

@@ -50,7 +50,7 @@ export default function MarketplacePage() {
         {isLoading && <p className="text-sm text-[#7C9284]">Loading products…</p>}
         {isError && (
           <p className="text-sm text-red-600">
-            Couldn't load products. Make sure the Django API is running at NEXT_PUBLIC_API_URL.
+            Could not load products. Make sure the Django API is running at NEXT_PUBLIC_API_URL.
           </p>
         )}
         {!isLoading && !isError && products?.length === 0 && (

@@ -15,7 +15,7 @@ export function DataTable<T extends { id: string }>({
   emptyLabel?: string;
 }) {
   if (isLoading) return <p className="text-sm text-[#7C9284]">Loading…</p>;
-  if (isError) return <p className="text-sm text-red-600">Couldn't load data. Confirm you're logged in as an administrator and the API is running.</p>;
+  if (isError) return <p className="text-sm text-red-600">Could not load data. Confirm you are logged in as an administrator and the API is running.</p>;
   if (!rows || rows.length === 0) return <p className="text-sm text-[#7C9284]">{emptyLabel}</p>;
 
   return (

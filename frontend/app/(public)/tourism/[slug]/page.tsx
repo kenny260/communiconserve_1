@@ -68,7 +68,7 @@ export default function DestinationDetailPage() {
           <p className="text-lg font-bold text-primary">{formatCurrency(destination.price_per_person)} / person</p>
 
           {status === "success" ? (
-            <p className="mt-4 text-sm text-primary">Booking submitted! Check "My Bookings" for confirmation.</p>
+            <p className="mt-4 text-sm text-primary">Booking submitted! Check My Bookings for confirmation.</p>
           ) : (
             <div className="mt-4 space-y-3">
               <div>
@@ -85,7 +85,7 @@ export default function DestinationDetailPage() {
                   <input type="number" min={0} value={children} onChange={(e) => setChildren(Number(e.target.value))} className="input mt-1" />
                 </div>
               </div>
-              {status === "error" && <p className="text-xs text-red-600">Couldn't create the booking. Please try again.</p>}
+              {status === "error" && <p className="text-xs text-red-600">Could not create the booking. Please try again.</p>}
               <button
                 onClick={handleBook}
                 disabled={!visitDate}

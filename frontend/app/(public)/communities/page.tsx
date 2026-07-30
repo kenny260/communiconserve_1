@@ -17,7 +17,7 @@ export default function CommunitiesPage() {
       </p>
 
       {isLoading && <p className="mt-8 text-sm text-[#7C9284]">Loading communities…</p>}
-      {isError && <p className="mt-8 text-sm text-red-600">Couldn't load communities.</p>}
+      {isError && <p className="mt-8 text-sm text-red-600">Could not load communities.</p>}
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {communities?.map((c) => (
