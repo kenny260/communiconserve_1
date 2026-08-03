@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
-# Simple start script for Railway/Heroku-style environments.
+# Simple start script for Render/Railway/Heroku-style environments.
 # Installs requirements, optionally runs migrations and collectstatic, then starts Gunicorn.
 
 # Use the existing Python environment on the platform. If a virtualenv is required,
