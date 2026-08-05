@@ -9,7 +9,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers = { ...(config.headers || {}), Authorization: `Bearer ${token}` };
+  }
   return config;
 });
 
@@ -30,4 +32,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
