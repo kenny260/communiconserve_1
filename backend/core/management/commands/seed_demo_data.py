@@ -1,6 +1,7 @@
 import random
 from datetime import date, timedelta
 from decimal import Decimal
+from pathlib import Path
 from urllib.parse import quote
 
 import requests
@@ -26,6 +27,9 @@ User = get_user_model()
 
 DISTRICTS = ["Lubombo", "Hhohho", "Manzini", "Shiselweni"]
 
+SEED_IMAGES_DIR = Path(__file__).resolve().parents[3] / "seed_images"
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
 PRODUCT_IMAGE_KEYWORDS = {
     "Organic Honey": "honey,beekeeping",
     "Fresh Vegetables": "vegetables,farm",
@@ -47,19 +51,34 @@ CONSERVATION_KEYWORDS = {
 COMMUNITY_KEYWORD = "african village,rural community"
 
 
-def _fetch_image(stdout, keyword: str, width: int = 800, height: int = 600):
-    """Downloads a topical stock photo from LoremFlickr (no API key required).
-    Returns a Django ContentFile, or None if the request fails for any reason
-    — image seeding is best-effort and should never abort the rest of the seed.
-    """
+def _local_image(folder: Path):
+    if not folder.exists():
+        return None
+    files = [f for f in folder.iterdir() if f.suffix.lower() in IMAGE_EXTENSIONS]
+    if not files:
+        return None
+    path = random.choice(files)
+    return ContentFile(path.read_bytes(), name=path.name)
+
+
+def _download_image(stdout, keyword: str, width: int = 800, height: int = 600):
     url = f"https://loremflickr.com/{width}/{height}/{quote(keyword)}"
     try:
         response = requests.get(url, timeout=8)
         response.raise_for_status()
         return ContentFile(response.content, name=f"{slugify(keyword)}-{random.randint(1000,9999)}.jpg")
-    except Exception as exc:  # noqa: BLE001 — deliberately broad, this is best-effort
+    except Exception as exc:  # noqa: BLE001
         stdout.write(f"  (image fetch skipped for '{keyword}': {exc})")
         return None
+
+
+def _get_image(stdout, local_folder: Path, keyword: str, allow_network: bool):
+    image = _local_image(local_folder)
+    if image:
+        return image
+    if allow_network:
+        return _download_image(stdout, keyword)
+    return None
 
 COMMUNITY_NAMES = [
     "Shewula", "Mlawula", "Hlane", "Mhlumeni", "Lomahasha", "Big Bend",
@@ -123,22 +142,27 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--skip-images", action="store_true",
-            help="Skip downloading stock photos (faster, no network required).",
+            help="Skip attaching any images at all.",
+        )
+        parser.add_argument(
+            "--local-only", action="store_true",
+            help="Only use photos found in backend/seed_images/ — never fall back to downloading.",
         )
 
     @transaction.atomic
     def handle(self, *args, **options):
         random.seed(42)
         with_images = not options["skip_images"]
+        allow_network = with_images and not options["local_only"]
 
         admins = self._seed_admins()
-        communities = self._seed_communities(with_images)
+        communities = self._seed_communities(with_images, allow_network)
         categories = self._seed_categories()
         customers, tourists = self._seed_public_users(communities)
         sellers = self._seed_sellers(communities, admins)
-        products = self._seed_products(sellers, categories, with_images)
-        destinations = self._seed_destinations(communities, with_images)
-        projects = self._seed_conservation(communities, admins, with_images)
+        products = self._seed_products(sellers, categories, with_images, allow_network)
+        destinations = self._seed_destinations(communities, with_images, allow_network)
+        projects = self._seed_conservation(communities, admins, with_images, allow_network)
         self._seed_bookings(destinations, customers + tourists)
         self._seed_orders(products, customers + tourists)
         self._seed_notifications(admins, customers + tourists)
@@ -150,8 +174,6 @@ class Command(BaseCommand):
             f"{len(projects)} conservation projects, and supporting bookings/orders/"
             f"notifications/audit logs."
         ))
-
-    # -- Users -----------------------------------------------------------
 
     def _seed_admins(self):
         admins = []
@@ -208,10 +230,9 @@ class Command(BaseCommand):
             tourists.append(u)
         return customers, tourists
 
-    # -- Core content ------------------------------------------------------
-
-    def _seed_communities(self, with_images=True):
+    def _seed_communities(self, with_images=True, allow_network=True):
         communities = []
+        folder = SEED_IMAGES_DIR / "communities"
         for name in COMMUNITY_NAMES:
             c, created = Community.objects.get_or_create(
                 slug=slugify(name),
@@ -226,10 +247,10 @@ class Command(BaseCommand):
                 ),
             )
             if with_images and (created or not c.cover_image):
-                image = _fetch_image(self.stdout, COMMUNITY_KEYWORD)
+                image = _get_image(self.stdout, folder, COMMUNITY_KEYWORD, allow_network)
                 if image:
                     c.cover_image.save(image.name, image, save=True)
-                    gallery_image = _fetch_image(self.stdout, COMMUNITY_KEYWORD)
+                    gallery_image = _get_image(self.stdout, folder, COMMUNITY_KEYWORD, allow_network)
                     if gallery_image:
                         CommunityImage.objects.create(community=c, image=gallery_image, caption=f"{name} community life")
             communities.append(c)
@@ -277,7 +298,7 @@ class Command(BaseCommand):
             sellers.append(seller)
         return sellers
 
-    def _seed_products(self, sellers, categories, with_images=True):
+    def _seed_products(self, sellers, categories, with_images=True, allow_network=True):
         products = []
         cat_map = {c.name: c for c in categories}
         count = 0
@@ -307,16 +328,18 @@ class Command(BaseCommand):
                 ratings_count=random.randint(10, 130),
             )
             if with_images:
+                folder = SEED_IMAGES_DIR / "products" / slugify(cat_name)
                 keyword = PRODUCT_IMAGE_KEYWORDS.get(cat_name, "handmade,craft")
-                image = _fetch_image(self.stdout, keyword)
+                image = _get_image(self.stdout, folder, keyword, allow_network)
                 if image:
                     ProductImage.objects.create(product=product, image=image, is_primary=True, alt_text=name)
             products.append(product)
             count += 1
         return products
 
-    def _seed_destinations(self, communities, with_images=True):
+    def _seed_destinations(self, communities, with_images=True, allow_network=True):
         destinations = []
+        folder = SEED_IMAGES_DIR / "destinations"
         for name in DESTINATION_NAMES:
             slug = slugify(name)
             d, created = TourismDestination.objects.get_or_create(
@@ -344,16 +367,16 @@ class Command(BaseCommand):
                     keyword = "african craft market"
                 elif "bird" in lowered or "wetland" in lowered:
                     keyword = "birdwatching,wetland"
-                image = _fetch_image(self.stdout, keyword)
+                image = _get_image(self.stdout, folder, keyword, allow_network)
                 if image:
                     d.cover_image.save(image.name, image, save=True)
-                    gallery_image = _fetch_image(self.stdout, keyword)
+                    gallery_image = _get_image(self.stdout, folder, keyword, allow_network)
                     if gallery_image:
                         DestinationImage.objects.create(destination=d, image=gallery_image, caption=name)
             destinations.append(d)
         return destinations
 
-    def _seed_conservation(self, communities, admins, with_images=True):
+    def _seed_conservation(self, communities, admins, with_images=True, allow_network=True):
         projects = []
         for title in CONSERVATION_TITLES:
             slug = slugify(title)
@@ -385,17 +408,16 @@ class Command(BaseCommand):
                     content=f"{title} continues to make progress with strong community participation.",
                 )
             if with_images and (created or not p.cover_image):
+                folder = SEED_IMAGES_DIR / "conservation" / category
                 keyword = CONSERVATION_KEYWORDS.get(category, "conservation,nature")
-                image = _fetch_image(self.stdout, keyword)
+                image = _get_image(self.stdout, folder, keyword, allow_network)
                 if image:
                     p.cover_image.save(image.name, image, save=True)
-                    gallery_image = _fetch_image(self.stdout, keyword)
+                    gallery_image = _get_image(self.stdout, folder, keyword, allow_network)
                     if gallery_image:
                         ProjectGallery.objects.create(project=p, image=gallery_image, caption=title)
             projects.append(p)
         return projects
-
-    # -- Transactional data --------------------------------------------
 
     def _seed_bookings(self, destinations, users):
         for _ in range(45):

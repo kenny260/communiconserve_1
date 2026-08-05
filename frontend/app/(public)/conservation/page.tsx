@@ -26,7 +26,7 @@ export default function ConservationPage() {
       </p>
 
       {isLoading && <p className="mt-8 text-sm text-[#7C9284]">Loading projects…</p>}
-      {isError && <p className="mt-8 text-sm text-red-600">Couldn't load conservation projects.</p>}
+      {isError && <p className="mt-8 text-sm text-red-600">Could not load conservation projects.</p>}
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects?.map((p) => (

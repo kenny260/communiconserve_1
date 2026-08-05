@@ -15,7 +15,7 @@ export default function AdminAnalyticsPage() {
       <p className="text-sm text-[#7C9284]">Platform-wide totals and recent activity.</p>
 
       {isLoading && <p className="mt-6 text-sm text-[#7C9284]">Loading…</p>}
-      {isError && <p className="mt-6 text-sm text-red-600">Couldn't load analytics.</p>}
+      {isError && <p className="mt-6 text-sm text-red-600">Could not load analytics.</p>}
 
       {data && (
         <div className="mt-6 space-y-6">

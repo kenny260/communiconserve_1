@@ -26,7 +26,7 @@ export default function ContactPage() {
         className="space-y-4 rounded-2xl border border-black/5 bg-white p-6 shadow-sm"
       >
         {submitted ? (
-          <p className="text-sm text-primary">Thanks for reaching out — we'll get back to you soon.</p>
+          <p className="text-sm text-primary">Thanks for reaching out — we will get back to you soon.</p>
         ) : (
           <>
             <div>

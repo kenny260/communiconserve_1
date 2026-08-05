@@ -24,7 +24,7 @@ export default function TourismPage() {
       {isLoading && <p className="mt-8 text-sm text-[#7C9284]">Loading destinations…</p>}
       {isError && (
         <p className="mt-8 text-sm text-red-600">
-          Couldn't load destinations. Make sure the Django API is running.
+          Could not load destinations. Make sure the Django API is running.
         </p>
       )}
 
